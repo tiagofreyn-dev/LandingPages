@@ -113,6 +113,38 @@ export default function Dashboard() {
           }
 
           if (pageData) {
+            // Verifica se veio redirecionado do checkout com pagamento aprovado
+            const veioDeCheckoutComSucesso = params.get('success') === 'true';
+            
+            if (veioDeCheckoutComSucesso && !pageData.pago) {
+              try {
+                if (isSupabaseConfigured) {
+                  await supabase
+                    .from('landing_pages')
+                    .update({ pago: true })
+                    .eq('id', pageData.id);
+                } else {
+                  const mockPage = mockDatabase.getPageBySlug(pageData.slug);
+                  if (mockPage) {
+                    mockPage.pago = true;
+                    await mockDatabase.savePage(mockPage);
+                  }
+                }
+                pageData.pago = true;
+                
+                // Dispara confete festivo automático
+                setTimeout(() => {
+                  confetti({
+                    particleCount: 180,
+                    spread: 100,
+                    origin: { y: 0.6 }
+                  });
+                }, 500);
+              } catch (err) {
+                console.error('Erro na ativação automática pós-pagamento:', err);
+              }
+            }
+
             // Modo Edição Confirmado!
             setModoEdicao(true);
             setIdPaginaEdicao(pageData.id || null);

@@ -29,7 +29,7 @@ import { supabase, isSupabaseConfigured, mockDatabase, LandingPageData } from '@
 import LandingPageTemplate from '@/components/LandingPageTemplate';
 import confetti from 'canvas-confetti';
 
-// CONFIGURAÇÃO DO PROPRIETÁRIO DO SAAS (VOCÊ)
+// CONFIGURAÇÃO DO PROPRIETÁRIO (VOCÊ)
 // Substitua o link abaixo pelo seu link de pagamento real (Mercado Pago, Stripe, etc.)
 const SEU_LINK_DE_PAGAMENTO = 'https://mpago.la/seu-link-de-pagamento';
 
@@ -60,7 +60,7 @@ export default function Dashboard() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Base URL para geração de links
-  const [baseUrl, setBaseUrl] = useState('https://meusaas.com.br');
+  const [baseUrl, setBaseUrl] = useState('https://micropages.com.br');
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -297,7 +297,7 @@ export default function Dashboard() {
   };
 
   const copiarPix = () => {
-    const pixFalso = '00020126580014br.gov.bcb.pix0136e4f3a7d2-7c6d-4c38-bd91-032a4e9b9087520400005303986540519.905802BR5913MicroPagesSaas6009Sao Paulo62070503***6304E2D5';
+    const pixFalso = '00020126580014br.gov.bcb.pix0136e4f3a7d2-7c6d-4c38-bd91-032a4e9b9087520400005303986540519.905802BR5910MicroPages6009Sao Paulo62070503***6304E2D5';
     navigator.clipboard.writeText(pixFalso);
     setPixCopiado(true);
     setTimeout(() => setPixCopiado(false), 2000);
@@ -327,7 +327,7 @@ export default function Dashboard() {
           </div>
           <div>
             <h1 className="font-extrabold text-base md:text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-neutral-400">
-              MicroPages <span className="text-cyan-400 text-xs font-semibold px-2 py-0.5 rounded-full bg-cyan-900/20 border border-cyan-500/10 ml-1">SaaS</span>
+              MicroPages <span className="text-cyan-400 text-xs font-semibold px-2 py-0.5 rounded-full bg-cyan-900/20 border border-cyan-500/10 ml-1">Premium</span>
             </h1>
             <p className="text-[10px] text-neutral-500 font-medium">Painel de Criação Dinâmica</p>
           </div>
@@ -554,7 +554,7 @@ export default function Dashboard() {
                   </label>
                   <div className="flex rounded-xl bg-neutral-900 border border-neutral-800 overflow-hidden focus-within:border-cyan-500/50 focus-within:ring-1 focus-within:ring-cyan-500/30 transition duration-200">
                     <span className="bg-neutral-950 text-neutral-500 text-xs px-3 flex items-center border-r border-neutral-800 select-none font-medium">
-                      meusaas.com.br/
+                      {baseUrl.replace(/^https?:\/\//, '') + '/'}
                     </span>
                     <input
                       type="text"
@@ -750,7 +750,7 @@ export default function Dashboard() {
 
           {/* Footer do Painel */}
           <div className="text-[10px] text-neutral-600 text-center py-4 border-t border-neutral-900/60 mt-8 select-none">
-            MicroPages SaaS • Otimizado para Deploy na Vercel
+            MicroPages • Otimizado para Deploy na Vercel
           </div>
 
         </section>

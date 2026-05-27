@@ -30,7 +30,7 @@ export default function Home() {
           </div>
           <div>
             <h1 className="font-extrabold text-base md:text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-neutral-400">
-              MicroPages <span className="text-cyan-400 text-xs font-semibold px-2 py-0.5 rounded-full bg-cyan-900/20 border border-cyan-500/10 ml-1">SaaS</span>
+              MicroPages <span className="text-cyan-400 text-xs font-semibold px-2 py-0.5 rounded-full bg-cyan-900/20 border border-cyan-500/10 ml-1">Premium</span>
             </h1>
             <p className="text-[10px] text-neutral-500 font-medium">Landing Pages Instantâneas</p>
           </div>
@@ -214,7 +214,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="border-t border-neutral-900 bg-neutral-950 py-12 text-center text-xs text-neutral-500 relative z-10">
-        <p className="mb-2">© {new Date().getFullYear()} MicroPages SaaS. Desenvolvido para profissionais liberais de alta performance.</p>
+        <p className="mb-2">© {new Date().getFullYear()} MicroPages. Desenvolvido para profissionais liberais de alta performance.</p>
         <p className="text-neutral-600 hover:text-neutral-400 transition-colors">Otimizado para deploy contínuo e infraestrutura na nuvem.</p>
       </footer>
 

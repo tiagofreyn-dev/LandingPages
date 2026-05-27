@@ -93,7 +93,7 @@ export default function LandingPageTemplate({ data, isPreview = false }: Landing
 
   // Renderizador do avatar profissional
   const renderAvatar = () => {
-    if (foto_url && foto_url.trim().startsWith('http')) {
+    if (foto_url && (foto_url.trim().startsWith('http') || foto_url.trim().startsWith('data:image'))) {
       return (
         <div className="relative group">
           <div className={`absolute -inset-0.5 rounded-full blur bg-gradient-to-tr opacity-50 transition duration-300 group-hover:opacity-70 ${cor_tema === 'azul' ? 'from-cyan-500 to-blue-500' : cor_tema === 'verde' ? 'from-emerald-500 to-teal-500' : 'from-amber-500 to-yellow-500'}`}></div>
@@ -236,7 +236,7 @@ export default function LandingPageTemplate({ data, isPreview = false }: Landing
           <p className="mb-1">© {new Date().getFullYear()} {nome}. Todos os direitos reservados.</p>
           {!isPreview && (
             <p className="hover:text-neutral-400 transition-colors">
-              Criado com <span className="font-semibold text-cyan-400">MicroPages SaaS</span>
+              Criado com <span className="font-semibold text-cyan-400">MicroPages</span>
             </p>
           )}
         </div>

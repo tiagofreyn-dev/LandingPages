@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MicroPages SaaS - Landing Pages Dinâmicas para Profissionais Liberais",
-  description: "Crie sua micro-landing page profissional em segundos para Advogados, Psicólogos e Contadores. Converta mais clientes com um CTA focado no WhatsApp.",
+  title: "MicroPages - Landing Pages de Alta Performance para Profissionais Liberais",
+  description: "Crie sua micro-landing page profissional em segundos. Converta mais clientes com um CTA focado no WhatsApp.",
 };
 
 export default function RootLayout({

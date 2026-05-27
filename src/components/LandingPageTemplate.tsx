@@ -244,7 +244,7 @@ export default function LandingPageTemplate({ data, isPreview = false }: Landing
       </div>
 
       {/* CTA PRINCIPAL FLUTUANTE (FIXO NO BOTTOM DA TELA) - ALTA CONVERSÃO */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black via-black/85 to-transparent backdrop-blur-xs z-50 flex justify-center">
+      <div className={`${isPreview ? 'absolute' : 'fixed'} bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black via-black/85 to-transparent backdrop-blur-xs z-40 flex justify-center`}>
         <a
           href={isPreview ? '#' : whatsappUrl}
           target={isPreview ? '_self' : '_blank'}

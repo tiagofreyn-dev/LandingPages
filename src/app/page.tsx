@@ -11,7 +11,13 @@ import {
   Scale,
   Brain,
   Calculator,
-  Laptop
+  Laptop,
+  HelpCircle,
+  TrendingUp,
+  Target,
+  Compass,
+  CheckCircle,
+  Briefcase
 } from 'lucide-react';
 
 export default function Home() {
@@ -45,7 +51,7 @@ export default function Home() {
       </header>
 
       {/* Hero Section */}
-      <main className="flex-1 max-w-7xl mx-auto w-full px-6 py-16 md:py-24 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
+      <main className="max-w-7xl mx-auto w-full px-6 py-16 md:py-24 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
         
         {/* Lado Esquerdo - Chamada de Marketing */}
         <section className="lg:col-span-7 space-y-8 text-center lg:text-left">
@@ -60,7 +66,7 @@ export default function Home() {
             </h2>
             
             <p className="text-neutral-400 text-base md:text-lg font-light leading-relaxed max-w-2xl mx-auto lg:mx-0">
-              Desenvolvido especialmente para **Advogados, Psicólogos e Contadores**. Preencha um formulário simples em uma única tela e tenha uma micro-landing page profissional, responsiva e de alta conversão publicada instantaneamente.
+              Desenvolvido para **qualquer profissional, especialista ou prestador de serviços**. Preencha um formulário simples em uma única tela e tenha um minisite profissional, responsivo e de altíssima conversão no ar em segundos.
             </p>
           </div>
 
@@ -70,7 +76,7 @@ export default function Home() {
               href="/dashboard"
               className="w-full sm:w-auto flex items-center justify-center gap-2 py-4 px-8 rounded-full font-extrabold text-sm md:text-base tracking-wide bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-slate-950 hover:shadow-[0_0_25px_rgba(6,182,212,0.3)] active:scale-95 transition-all duration-300 group"
             >
-              <span>Criar Minha Landing Page Grátis</span>
+              <span>Criar Minha Landing Page Agora</span>
               <ArrowRight className="w-4 h-4 text-slate-950 font-bold transition-transform duration-300 group-hover:translate-x-1" />
             </Link>
 
@@ -95,7 +101,7 @@ export default function Home() {
             </div>
             <div>
               <p className="text-2xl font-black text-white">Premium</p>
-              <p className="text-[10px] uppercase font-bold text-neutral-500 tracking-wider">3 Temas Exclusivos</p>
+              <p className="text-[10px] uppercase font-bold text-neutral-500 tracking-wider">Temas Universais</p>
             </div>
           </div>
 
@@ -106,12 +112,11 @@ export default function Home() {
           
           <div className="relative w-full max-w-sm aspect-square bg-gradient-to-tr from-neutral-900 to-neutral-950 border border-neutral-800 rounded-3xl p-6 shadow-2xl flex flex-col justify-between overflow-hidden group">
             
-            {/* Brilho decorativo de fundo */}
             <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/5 via-transparent to-amber-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
             
             <div className="space-y-4 relative z-10">
               <span className="text-[10px] uppercase font-bold text-cyan-400 tracking-widest bg-cyan-950/20 border border-cyan-500/10 px-3 py-1 rounded-full">
-                Exclusivo para Profissionais
+                Exclusivo para Qualquer Profissão
               </span>
               
               <h3 className="text-2xl font-black text-white leading-tight">
@@ -119,7 +124,7 @@ export default function Home() {
               </h3>
               
               <p className="text-xs text-neutral-400 leading-relaxed font-light">
-                Modelos de temas de alta conversão estruturados de forma profissional para captar contatos qualificados.
+                Estruturas visuais com designs focados nas principais categorias de profissionais do mercado.
               </p>
             </div>
 
@@ -131,8 +136,8 @@ export default function Home() {
                   <Scale className="w-4 h-4" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold text-neutral-200">Advogados</h4>
-                  <p className="text-[9px] text-neutral-500">Design azul corporativo e sóbrio que transmite segurança.</p>
+                  <h4 className="text-xs font-bold text-neutral-200">Tema Azul Corporativo</h4>
+                  <p className="text-[9px] text-neutral-500">Ideal para Advogados, Contadores, Engenheiros e Consultores corporativos.</p>
                 </div>
               </div>
 
@@ -141,18 +146,18 @@ export default function Home() {
                   <Brain className="w-4 h-4" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold text-neutral-200">Psicólogos e Terapeutas</h4>
-                  <p className="text-[9px] text-neutral-500">Tema verde sálvia calmante, humanizado e acolhedor.</p>
+                  <h4 className="text-xs font-bold text-neutral-200">Tema Verde Clínico</h4>
+                  <p className="text-[9px] text-neutral-500">Ideal para Médicos, Psicólogos, Nutricionistas, Fisioterapeutas e Clínicas.</p>
                 </div>
               </div>
 
               <div className="flex items-center gap-3 p-3 bg-white/5 border border-white/5 hover:border-amber-500/20 rounded-xl transition duration-200">
                 <div className="p-2 rounded-lg bg-amber-500/10 text-amber-400">
-                  <Calculator className="w-4 h-4" />
+                  <Briefcase className="w-4 h-4" />
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold text-neutral-200">Contadores e Consultores</h4>
-                  <p className="text-[9px] text-neutral-500">Estética Premium Ouro em tons de obsidian e ouro.</p>
+                  <h4 className="text-xs font-bold text-neutral-200">Tema Premium Ouro</h4>
+                  <p className="text-[9px] text-neutral-500">Perfeito para Arquitetos, Designers, Personal Trainers e Serviços de Luxo.</p>
                 </div>
               </div>
 
@@ -163,6 +168,99 @@ export default function Home() {
         </section>
 
       </main>
+
+      {/* NOVA SEÇÃO COMPLETA: O QUE É UMA LANDING PAGE */}
+      <section className="bg-neutral-950 border-t border-neutral-900 py-16 md:py-24 relative z-10">
+        <div className="max-w-7xl mx-auto px-6">
+          
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            
+            {/* Lado Esquerdo - Detalhamento do Conceito */}
+            <div className="lg:col-span-6 space-y-6">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-bold uppercase tracking-wider">
+                <HelpCircle className="w-4 h-4" /> Conceito Explicado
+              </div>
+              
+              <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white leading-tight">
+                O que é uma <span className="text-cyan-400">Landing Page</span> e por que você precisa de uma urgente?
+              </h2>
+              
+              <p className="text-sm text-neutral-450 leading-relaxed font-light">
+                Diferente de um site tradicional repleto de botões, links externos e informações confusas que fazem seu visitante se perder e ir embora, uma **Landing Page (página de destino)** é construída com um único e exclusivo foco: **a conversão**.
+              </p>
+              
+              <p className="text-sm text-neutral-450 leading-relaxed font-light">
+                Ela é projetada de forma linear para guiar o olhar do seu cliente direto para o botão principal de ação. No nosso caso, o botão direciona diretamente para o seu **WhatsApp** com uma mensagem de abordagem personalizada pronta!
+              </p>
+
+              {/* Estatísticas de Conversão */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
+                <div className="p-4 rounded-xl bg-neutral-900 border border-neutral-850 flex gap-3 items-center">
+                  <TrendingUp className="w-8 h-8 text-emerald-400 shrink-0" />
+                  <div>
+                    <h4 className="text-sm font-bold text-neutral-200">Conversão 10x Maior</h4>
+                    <p className="text-[10px] text-neutral-500 font-light">Até 10 vezes mais contatos do que posts em redes sociais comuns.</p>
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-xl bg-neutral-900 border border-neutral-850 flex gap-3 items-center">
+                  <Target className="w-8 h-8 text-cyan-400 shrink-0" />
+                  <div>
+                    <h4 className="text-sm font-bold text-neutral-200">Foco Absoluto</h4>
+                    <p className="text-[10px] text-neutral-500 font-light">Zero links de distração. Um único caminho para falar com você.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Lado Direito - Cards Explicativos com Efeitos Especiais */}
+            <div className="lg:col-span-6 space-y-4">
+              
+              {/* Card 1 */}
+              <div className="p-5 rounded-2xl bg-white/5 border border-white/5 hover:border-neutral-800 transition duration-300 flex gap-4">
+                <div className="p-3 bg-cyan-500/10 text-cyan-400 rounded-xl h-fit">
+                  <CheckCircle className="w-5 h-5" />
+                </div>
+                <div className="space-y-1">
+                  <h4 className="font-bold text-sm md:text-base text-neutral-100">1. Construção de Autoridade</h4>
+                  <p className="text-xs text-neutral-450 leading-relaxed font-light">
+                    Ao invés de mandar um simples link genérico ou telefone, enviar o endereço do seu site próprio (`micropages.com.br/seu-nome`) passa seriedade, confiança profissional e aumenta imediatamente a percepção de valor do seu serviço.
+                  </p>
+                </div>
+              </div>
+
+              {/* Card 2 */}
+              <div className="p-5 rounded-2xl bg-white/5 border border-white/5 hover:border-neutral-800 transition duration-300 flex gap-4">
+                <div className="p-3 bg-emerald-500/10 text-emerald-400 rounded-xl h-fit">
+                  <MessageSquare className="w-5 h-5" />
+                </div>
+                <div className="space-y-1">
+                  <h4 className="font-bold text-sm md:text-base text-neutral-100">2. Facilidade Incomparável de Atendimento</h4>
+                  <p className="text-xs text-neutral-450 leading-relaxed font-light">
+                    O botão de WhatsApp fixado e pulsando no rodapé da página garante que o cliente te chame na hora. Ele não precisa salvar seu número ou digitar nada, basta um único toque para a conversa começar.
+                  </p>
+                </div>
+              </div>
+
+              {/* Card 3 */}
+              <div className="p-5 rounded-2xl bg-white/5 border border-white/5 hover:border-neutral-800 transition duration-300 flex gap-4">
+                <div className="p-3 bg-amber-500/10 text-amber-400 rounded-xl h-fit">
+                  <Smartphone className="w-5 h-5" />
+                </div>
+                <div className="space-y-1">
+                  <h4 className="font-bold text-sm md:text-base text-neutral-100">3. Perfeito para Anúncios (Google & Instagram)</h4>
+                  <p className="text-xs text-neutral-450 leading-relaxed font-light">
+                    Quer fazer anúncios patrocinados no Google ou Instagram? Uma Landing Page focada e de carregamento instantâneo é o destino obrigatório para converter cada clique pago em faturamento real.
+                  </p>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+      </section>
 
       {/* Grid de Recursos (Features) */}
       <section className="bg-neutral-950 border-t border-neutral-900 py-16 md:py-24 relative z-10">
@@ -180,9 +278,9 @@ export default function Home() {
               <div className="p-3 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded-xl w-fit">
                 <Clock className="w-6 h-6" />
               </div>
-              <h4 className="text-lg font-bold text-neutral-100">Pronto em minutos</h4>
+              <h4 className="text-lg font-bold text-neutral-100">Pronto em 30 segundos</h4>
               <p className="text-xs text-neutral-400 leading-relaxed font-light">
-                Esqueça processos complexos. Apenas insira suas informações de contato e biografia para ver a mágica acontecer instantaneamente.
+                Esqueça processos complexos. Apenas insira suas informações de contato, envie sua foto e biografia e veja seu site profissional ir ao ar imediatamente.
               </p>
             </div>
 
@@ -214,7 +312,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="border-t border-neutral-900 bg-neutral-950 py-12 text-center text-xs text-neutral-500 relative z-10">
-        <p className="mb-2">© {new Date().getFullYear()} MicroPages. Desenvolvido para profissionais liberais de alta performance.</p>
+        <p className="mb-2">© {new Date().getFullYear()} MicroPages. Desenvolvido para profissionais liberais e autônomos de alta performance.</p>
         <p className="text-neutral-600 hover:text-neutral-400 transition-colors">Otimizado para deploy contínuo e infraestrutura na nuvem.</p>
       </footer>
 

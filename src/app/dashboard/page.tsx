@@ -23,7 +23,10 @@ import {
   CreditCard,
   QrCode,
   ShieldCheck,
-  Trash2
+  Trash2,
+  Key,
+  Edit,
+  ArrowLeft
 } from 'lucide-react';
 import { supabase, isSupabaseConfigured, mockDatabase, LandingPageData } from '@/lib/supabase';
 import LandingPageTemplate from '@/components/LandingPageTemplate';
@@ -47,14 +50,21 @@ export default function Dashboard() {
   // Controle de edição manual do slug
   const [slugEditadoManualmente, setSlugEditadoManualmente] = useState(false);
 
-  // Estados de Operação
+  // Estados de Operação e Fluxo
   const [salvando, setSalvando] = useState(false);
-  const [mensagemSucesso, setMensagemSucesso] = useState<{ link: string } | null>(null);
+  const [mensagemSucesso, setMensagemSucesso] = useState<{ link: string; editLink: string } | null>(null);
   const [paymentPending, setPaymentPending] = useState(false); // Fluxo de pagamento
   const [confirmandoPagamento, setConfirmandoPagamento] = useState(false);
   const [erroForm, setErroForm] = useState<string | null>(null);
   const [copiado, setCopiado] = useState(false);
+  const [editLinkCopiado, setEditLinkCopiado] = useState(false);
   const [pixCopiado, setPixCopiado] = useState(false);
+
+  // ESTADO DE EDIÇÃO (Caso acesse via Link Secreto)
+  const [modoEdicao, setModoEdicao] = useState(false);
+  const [idPaginaEdicao, setIdPaginaEdicao] = useState<string | null>(null);
+  const [paginaPagaOriginal, setPaginaPagaOriginal] = useState(false);
+  const [linkEdicaoGerado, setLinkEdicaoGerado] = useState<string | null>(null);
 
   // Referência para o input de arquivo oculto
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -67,6 +77,93 @@ export default function Dashboard() {
       setBaseUrl(`${window.location.protocol}//${window.location.host}`);
     }
   }, []);
+
+  // CARREGAR PÁGINA VIA LINK SECRETO (Com base na URL: ?slug=dr-sergio&key=UUID-DO-BANCO)
+  useEffect(() => {
+    async function carregarPaginaParaEdicao() {
+      if (typeof window === 'undefined') return;
+      
+      const params = new URLSearchParams(window.location.search);
+      const urlSlug = params.get('slug');
+      const urlKey = params.get('key'); // O key é o UUID (id) da página no banco
+
+      if (urlSlug && urlKey) {
+        try {
+          setSalvando(true);
+          let pageData: LandingPageData | null = null;
+
+          if (isSupabaseConfigured) {
+            // Busca no Supabase validando slug E UUID (id) para segurança
+            const { data: dbData, error: dbError } = await supabase
+              .from('landing_pages')
+              .select('*')
+              .eq('slug', urlSlug.toLowerCase())
+              .eq('id', urlKey)
+              .maybeSingle();
+
+            if (!dbError && dbData) {
+              pageData = dbData as LandingPageData;
+            }
+          } else {
+            // Busca no Mock Database (LocalStorage)
+            const dbData = mockDatabase.getPageBySlug(urlSlug);
+            if (dbData && dbData.id === urlKey) {
+              pageData = dbData;
+            }
+          }
+
+          if (pageData) {
+            // Modo Edição Confirmado!
+            setModoEdicao(true);
+            setIdPaginaEdicao(pageData.id || null);
+            setPaginaPagaOriginal(!!pageData.pago);
+            
+            // Preenche o formulário com os dados carregados
+            setNome(pageData.nome);
+            setProfissao(pageData.profissao);
+            setCidade(pageData.cidade);
+            
+            // Aplica máscara no WhatsApp
+            let cel = pageData.whatsapp.replace(/\D/g, '');
+            if (cel.length === 11) {
+              cel = `(${cel.slice(0, 2)}) ${cel.slice(2, 7)}-${cel.slice(7)}`;
+            } else if (cel.length === 10) {
+              cel = `(${cel.slice(0, 2)}) ${cel.slice(2, 6)}-${cel.slice(6)}`;
+            }
+            setWhatsapp(cel);
+            
+            setBio(pageData.bio);
+            setCorTema(pageData.cor_tema);
+            setFotoUrl(pageData.foto_url || '');
+            setSlug(pageData.slug);
+            setSlugEditadoManualmente(true);
+
+            // Gera o link de edição para segurança adicional
+            const editUrl = `${baseUrl}/dashboard?slug=${pageData.slug}&key=${pageData.id}`;
+            setLinkEdicaoGerado(editUrl);
+
+            // Se a página já está paga, exibe direto a tela de sucesso com o link e o botão de editar!
+            if (pageData.pago) {
+              setMensagemSucesso({
+                link: `${baseUrl}/${pageData.slug}`,
+                editLink: editUrl
+              });
+            }
+          } else {
+            alert('O link de edição utilizado é inválido ou a página não existe.');
+            // Limpa parâmetros da URL
+            window.history.replaceState({}, document.title, window.location.pathname);
+          }
+        } catch (err) {
+          console.error('Erro ao carregar dados de edição:', err);
+        } finally {
+          setSalvando(false);
+        }
+      }
+    }
+
+    carregarPaginaParaEdicao();
+  }, [baseUrl]);
 
   // Gera slug amigável automaticamente a partir do nome
   const formataSlug = (texto: string) => {
@@ -82,12 +179,13 @@ export default function Dashboard() {
   const handleNomeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const valor = e.target.value;
     setNome(valor);
-    if (!slugEditadoManualmente) {
+    if (!slugEditadoManualmente && !modoEdicao) {
       setSlug(formataSlug(valor));
     }
   };
 
   const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (modoEdicao) return; // Não permite alterar o endereço slug após criado para evitar quebras de links
     setSlugEditadoManualmente(true);
     setSlug(formataSlug(e.target.value));
   };
@@ -116,7 +214,6 @@ export default function Dashboard() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validação de tamanho máximo inicial para evitar travamentos (máximo de 8MB)
     if (file.size > 8 * 1024 * 1024) {
       alert('A imagem original é muito grande. Escolha uma foto com menos de 8MB.');
       return;
@@ -127,7 +224,7 @@ export default function Dashboard() {
       const img = new Image();
       img.onload = () => {
         const canvas = document.createElement('canvas');
-        const targetSize = 150; // Resolução final otimizada para web e banco
+        const targetSize = 150;
         
         canvas.width = targetSize;
         canvas.height = targetSize;
@@ -135,19 +232,16 @@ export default function Dashboard() {
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
 
-        // Desenha a imagem cortando no centro para ficar perfeitamente quadrada
         const sourceSize = Math.min(img.width, img.height);
         const sourceX = (img.width - sourceSize) / 2;
         const sourceY = (img.height - sourceSize) / 2;
 
         ctx.drawImage(
           img,
-          sourceX, sourceY, sourceSize, sourceSize, // Origem cortada no centro
-          0, 0, targetSize, targetSize // Destino no canvas 150x150
+          sourceX, sourceY, sourceSize, sourceSize,
+          0, 0, targetSize, targetSize
         );
 
-        // Comprime para JPEG de alta conversão com qualidade ajustada para 0.6
-        // Isso resulta em uma string Base64 extremamente leve (~5KB)
         const compressedBase64 = canvas.toDataURL('image/jpeg', 0.6);
         setFotoUrl(compressedBase64);
       };
@@ -172,7 +266,7 @@ export default function Dashboard() {
 
     // Validações básicas
     if (!nome.trim()) return setErroForm('Por favor, informe o seu Nome.');
-    if (!profissao.trim()) return setErroForm('Por favor, informe a sua Profissão (ex: Psicólogo, Advogado, Contador).');
+    if (!profissao.trim()) return setErroForm('Por favor, informe o que você é.');
     if (!cidade.trim()) return setErroForm('Por favor, informe a sua Cidade de atendimento.');
     if (!whatsapp.trim() || whatsapp.replace(/\D/g, '').length < 10) {
       return setErroForm('Por favor, informe um WhatsApp válido com DDD.');
@@ -183,6 +277,7 @@ export default function Dashboard() {
     setSalvando(true);
 
     const payload: LandingPageData = {
+      id: idPaginaEdicao || undefined,
       slug: slug.toLowerCase(),
       nome: nome.trim(),
       profissao: profissao.trim(),
@@ -191,39 +286,70 @@ export default function Dashboard() {
       bio: bio.trim(),
       cor_tema: corTema,
       foto_url: fotoUrl.trim() || undefined,
-      pago: false // Sempre inicia como NÃO pago para forçar o checkout
+      pago: modoEdicao ? paginaPagaOriginal : false // Mantém pago se já estava pago
     };
 
     try {
+      let savedRecord: LandingPageData | null = null;
+
       if (isSupabaseConfigured) {
         // Fluxo com Banco Supabase Ativo
-        // Verifica se o slug já existe e se pertence a outra pessoa
-        const { data: existente } = await supabase
-          .from('landing_pages')
-          .select('id, slug')
-          .eq('slug', payload.slug)
-          .maybeSingle();
+        if (!modoEdicao) {
+          // Verifica duplicidade apenas se for criação nova
+          const { data: existente } = await supabase
+            .from('landing_pages')
+            .select('id')
+            .eq('slug', payload.slug)
+            .maybeSingle();
+
+          if (existente) {
+            throw new Error('Este endereço de link (slug) já está em uso. Por favor, escolha outro.');
+          }
+        }
 
         // Faz o upsert no Supabase
-        const { error: saveError } = await supabase
+        const { data: dbData, error: saveError } = await supabase
           .from('landing_pages')
-          .upsert(
-            existente?.id ? { id: existente.id, ...payload } : payload,
-            { onConflict: 'slug' }
-          );
+          .upsert(payload, { onConflict: 'slug' })
+          .select('*')
+          .single();
 
         if (saveError) throw saveError;
+        savedRecord = dbData as LandingPageData;
       } else {
         // Fluxo Local Mock (LocalStorage)
-        await mockDatabase.savePage(payload);
+        savedRecord = await mockDatabase.savePage(payload);
       }
 
-      // Abre a tela de pendência de pagamento
-      setPaymentPending(true);
+      if (!savedRecord || !savedRecord.id) {
+        throw new Error('Falha ao salvar o registro e obter o identificador único.');
+      }
+
+      // Gera o Link Secreto de Edição baseado no UUID da página recém-salva!
+      const editUrl = `${baseUrl}/dashboard?slug=${savedRecord.slug}&key=${savedRecord.id}`;
+      setLinkEdicaoGerado(editUrl);
+      setIdPaginaEdicao(savedRecord.id);
+
+      if (modoEdicao && paginaPagaOriginal) {
+        // Se for uma edição de página já paga, salva e avança direto para o sucesso!
+        setMensagemSucesso({
+          link: `${baseUrl}/${savedRecord.slug}`,
+          editLink: editUrl
+        });
+        
+        confetti({
+          particleCount: 50,
+          spread: 40,
+          origin: { y: 0.6 }
+        });
+      } else {
+        // Abre a tela de pendência de pagamento
+        setPaymentPending(true);
+      }
 
     } catch (err: any) {
       console.error(err);
-      setErroForm(`Erro ao salvar os dados: ${err.message || 'Erro desconhecido. Tente outro slug.'}`);
+      setErroForm(`${err.message || 'Erro desconhecido ao salvar os dados.'}`);
     } finally {
       setSalvando(false);
     }
@@ -231,46 +357,35 @@ export default function Dashboard() {
 
   // Simula ou Confirma a aprovação de pagamento liberando o minisite no Supabase
   const handleConfirmarPagamento = async () => {
+    if (!idPaginaEdicao) return;
+    
     setConfirmandoPagamento(true);
     setErroForm(null);
 
-    const payload: LandingPageData = {
-      slug: slug.toLowerCase(),
-      nome: nome.trim(),
-      profissao: profissao.trim(),
-      cidade: cidade.trim(),
-      whatsapp: whatsapp.replace(/\D/g, ''),
-      bio: bio.trim(),
-      cor_tema: corTema,
-      foto_url: fotoUrl.trim() || undefined,
-      pago: true // Agora marcamos como PAGO!
-    };
-
     try {
       if (isSupabaseConfigured) {
-        const { data: existente } = await supabase
+        const { error: patchError } = await supabase
           .from('landing_pages')
-          .select('id')
-          .eq('slug', payload.slug)
-          .single();
+          .update({ pago: true })
+          .eq('id', idPaginaEdicao);
 
-        if (existente?.id) {
-          const { error: patchError } = await supabase
-            .from('landing_pages')
-            .update({ pago: true })
-            .eq('id', existente.id);
-
-          if (patchError) throw patchError;
-        } else {
-          throw new Error('Página não encontrada para ativação.');
-        }
+        if (patchError) throw patchError;
       } else {
-        await mockDatabase.savePage(payload);
+        // No local storage, atualiza o mock
+        const mockPage = mockDatabase.getPageBySlug(slug);
+        if (mockPage) {
+          mockPage.pago = true;
+          await mockDatabase.savePage(mockPage);
+        }
       }
 
-      // Sucesso Total - Libera o link público
-      const linkFinal = `${baseUrl}/${payload.slug}`;
-      setMensagemSucesso({ link: linkFinal });
+      setPaginaPagaOriginal(true);
+      
+      // Sucesso Total - Libera o link público e exibe o Link de Edição!
+      setMensagemSucesso({
+        link: `${baseUrl}/${slug}`,
+        editLink: linkEdicaoGerado || ''
+      });
       setPaymentPending(false);
 
       // Dispara confetes premium
@@ -283,7 +398,7 @@ export default function Dashboard() {
 
     } catch (err: any) {
       console.error(err);
-      setErroForm(`Erro ao ativar minisite: ${err.message || 'Erro desconhecido. Tente novamente.'}`);
+      setErroForm(`Erro ao ativar minisite: ${err.message || 'Erro desconhecido.'}`);
     } finally {
       setConfirmandoPagamento(false);
     }
@@ -296,11 +411,45 @@ export default function Dashboard() {
     setTimeout(() => setCopiado(false), 2000);
   };
 
+  const copiarEditLink = () => {
+    if (!linkEdicaoGerado && !mensagemSucesso?.editLink) return;
+    navigator.clipboard.writeText(mensagemSucesso?.editLink || linkEdicaoGerado || '');
+    setEditLinkCopiado(true);
+    setTimeout(() => setEditLinkCopiado(false), 2000);
+  };
+
   const copiarPix = () => {
     const pixFalso = '00020126580014br.gov.bcb.pix0136e4f3a7d2-7c6d-4c38-bd91-032a4e9b9087520400005303986540519.905802BR5910MicroPages6009Sao Paulo62070503***6304E2D5';
     navigator.clipboard.writeText(pixFalso);
     setPixCopiado(true);
     setTimeout(() => setPixCopiado(false), 2000);
+  };
+
+  // Reseta o painel para permitir que o usuário crie um novo minisite do zero
+  const handleCriarNovo = () => {
+    // Limpa parâmetros da URL de forma segura no navegador
+    if (typeof window !== 'undefined') {
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+    
+    // Reseta todos os estados
+    setModoEdicao(false);
+    setIdPaginaEdicao(null);
+    setPaginaPagaOriginal(false);
+    setLinkEdicaoGerado(null);
+    setMensagemSucesso(null);
+    setPaymentPending(false);
+    
+    setNome('');
+    setProfissao('');
+    setCidade('');
+    setWhatsapp('');
+    setBio('');
+    setCorTema('azul');
+    setFotoUrl('');
+    setSlug('');
+    setSlugEditadoManualmente(false);
+    setErroForm(null);
   };
 
   // Dados virtuais para renderizar o Preview em tempo real
@@ -357,11 +506,31 @@ export default function Dashboard() {
             
             {/* Cabeçalho do Formulário */}
             <div className="space-y-1">
-              <h2 className="text-xl font-bold tracking-tight text-neutral-100 flex items-center gap-2">
-                Informações da Página
-              </h2>
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold tracking-tight text-neutral-100 flex items-center gap-2">
+                  {modoEdicao ? (
+                    <>
+                      <Edit className="w-5 h-5 text-cyan-400" />
+                      Editar Minhas Informações
+                    </>
+                  ) : (
+                    'Informações da Página'
+                  )}
+                </h2>
+                {modoEdicao && (
+                  <button
+                    onClick={handleCriarNovo}
+                    className="text-[10px] font-bold uppercase tracking-wider text-neutral-500 hover:text-white flex items-center gap-1 transition duration-200 cursor-pointer"
+                  >
+                    <ArrowLeft className="w-3 h-3" /> Criar Outro
+                  </button>
+                )}
+              </div>
               <p className="text-xs text-neutral-400 font-light">
-                Insira seus dados abaixo para gerar sua página profissional instantaneamente.
+                {modoEdicao 
+                  ? 'Você está em modo de edição segura. Altere seus dados e salve sem precisar pagar novamente.'
+                  : 'Insira seus dados abaixo para gerar sua página profissional instantaneamente.'
+                }
               </p>
             </div>
 
@@ -560,11 +729,17 @@ export default function Dashboard() {
                       type="text"
                       value={slug}
                       onChange={handleSlugChange}
+                      disabled={modoEdicao}
                       placeholder="ex-dr-fabio-advogado"
-                      className="w-full bg-transparent border-0 rounded-r-xl px-3 py-2.5 text-sm text-neutral-100 placeholder-neutral-750 focus:outline-none focus:ring-0"
+                      className="w-full bg-transparent border-0 rounded-r-xl px-3 py-2.5 text-sm text-neutral-100 placeholder-neutral-750 focus:outline-none focus:ring-0 disabled:opacity-60 disabled:cursor-not-allowed"
                       required
                     />
                   </div>
+                  {modoEdicao && (
+                    <p className="text-[10px] text-neutral-500 font-light">
+                      O slug de endereço não pode ser alterado após criado para manter o link ativo funcionando.
+                    </p>
+                  )}
                 </div>
 
                 {/* Erros Gerais do Form */}
@@ -588,7 +763,7 @@ export default function Dashboard() {
                   ) : (
                     <>
                       <Save className="w-4 h-4 text-slate-950 font-bold" />
-                      <span>SALVAR E PUBLICAR AGORA</span>
+                      <span>{modoEdicao ? 'SALVAR ALTERAÇÕES' : 'SALVAR E PUBLICAR AGORA'}</span>
                     </>
                   )}
                 </button>
@@ -599,6 +774,30 @@ export default function Dashboard() {
             {/* FLUXO 2: TELA DE PENDÊNCIA DE PAGAMENTO (Exibido após o salvamento inicial) */}
             {paymentPending && !mensagemSucesso && (
               <div className="space-y-6 animate-fade-in">
+                
+                {/* Link de Edição Temporário para não perder acesso */}
+                <div className="p-4 rounded-xl bg-neutral-900 border border-neutral-800 space-y-2">
+                  <div className="flex items-center gap-1.5 text-cyan-400 text-xs font-bold">
+                    <Key className="w-3.5 h-3.5" />
+                    <span>Link Secreto de Edição Gerado!</span>
+                  </div>
+                  <p className="text-[10px] text-neutral-400 leading-relaxed font-light">
+                    Guarde o link de edição abaixo. Você precisará dele para acessar o painel e gerenciar seu site no futuro sem precisar pagar de novo!
+                  </p>
+                  <div className="flex items-center gap-2 bg-neutral-950/80 rounded-lg p-2 overflow-hidden justify-between border border-neutral-850">
+                    <span className="text-[10px] font-mono text-neutral-400 truncate pr-2 max-w-[200px]">
+                      {linkEdicaoGerado}
+                    </span>
+                    <button
+                      onClick={copiarEditLink}
+                      className="p-1.5 rounded bg-neutral-850 hover:bg-neutral-800 text-neutral-400 hover:text-white transition duration-200 shrink-0"
+                      title="Copiar Link de Edição"
+                    >
+                      {editLinkCopiado ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                    </button>
+                  </div>
+                </div>
+
                 <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 space-y-2">
                   <div className="flex items-center gap-2">
                     <CreditCard className="w-5 h-5" />
@@ -691,56 +890,88 @@ export default function Dashboard() {
               </div>
             )}
 
-            {/* FLUXO 3: TELA DE SUCESSO (Exibida após o pagamento ser confirmado e liberado) */}
+            {/* FLUXO 3: TELA DE SUCESSO (Exibida após o pagamento ser confirmado e liberado OU edição de pago salva) */}
             {mensagemSucesso && (
               <div className="space-y-6 animate-fade-in">
-                <div className="p-5 rounded-2xl bg-cyan-950/20 border border-cyan-500/30 shadow-[0_0_25px_rgba(6,182,212,0.1)] space-y-3">
+                <div className="p-5 rounded-2xl bg-cyan-950/20 border border-cyan-500/30 shadow-[0_0_25px_rgba(6,182,212,0.1)] space-y-4">
                   <div className="flex items-center gap-2">
                     <div className="p-1 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
                       <CheckCircle2 className="w-5 h-5" />
                     </div>
-                    <h3 className="text-base font-bold text-cyan-300">Minisite Ativado com Sucesso!</h3>
+                    <h3 className="text-base font-bold text-cyan-300">
+                      {modoEdicao ? 'Alterações Salvas com Sucesso!' : 'Minisite Ativado com Sucesso!'}
+                    </h3>
                   </div>
                   <p className="text-xs text-neutral-300 font-light leading-relaxed">
-                    Parabéns! O pagamento foi confirmado e a sua micro-landing page profissional está oficialmente **PUBLICADA** e **ATIVA** na internet para receber contatos dos seus clientes.
+                    {modoEdicao
+                      ? 'As modificações do seu minisite já estão ativas e publicadas na internet de forma instantânea para todos os seus clientes.'
+                      : 'Parabéns! O pagamento foi confirmado e a sua micro-landing page profissional está oficialmente **PUBLICADA** e **ATIVA** na internet para receber contatos dos seus clientes.'
+                    }
                   </p>
                   
-                  <div className="flex items-center gap-2 bg-neutral-900 border border-neutral-800 rounded-xl p-3 overflow-hidden justify-between mt-4">
-                    <span className="text-xs font-mono text-cyan-300 truncate select-all pr-2 max-w-[240px]">
-                      {mensagemSucesso.link}
-                    </span>
-                    
-                    <div className="flex items-center gap-1 shrink-0">
-                      <button
-                        onClick={copiarLink}
-                        className="p-2 rounded-lg hover:bg-neutral-800 text-neutral-400 hover:text-white transition duration-200"
-                        title="Copiar Link"
-                      >
-                        {copiado ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
-                      </button>
-                      <a
-                        href={mensagemSucesso.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="p-2 rounded-lg hover:bg-neutral-800 text-neutral-400 hover:text-white transition duration-200"
-                        title="Abrir em Nova Aba"
-                      >
-                        <ExternalLink className="w-4 h-4" />
-                      </a>
+                  {/* Link Público Ativo */}
+                  <div className="space-y-1.5">
+                    <span className="text-[10px] uppercase font-bold text-neutral-400 tracking-wider">Endereço público do seu site:</span>
+                    <div className="flex items-center gap-2 bg-neutral-900 border border-neutral-800 rounded-xl p-3 overflow-hidden justify-between">
+                      <span className="text-xs font-mono text-cyan-300 truncate select-all pr-2 max-w-[240px]">
+                        {mensagemSucesso.link}
+                      </span>
+                      
+                      <div className="flex items-center gap-1 shrink-0">
+                        <button
+                          onClick={copiarLink}
+                          className="p-2 rounded-lg hover:bg-neutral-800 text-neutral-400 hover:text-white transition duration-200"
+                          title="Copiar Link Público"
+                        >
+                          {copiado ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                        </button>
+                        <a
+                          href={mensagemSucesso.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-2 rounded-lg hover:bg-neutral-800 text-neutral-400 hover:text-white transition duration-200"
+                          title="Abrir em Nova Aba"
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                        </a>
+                      </div>
                     </div>
                   </div>
+
+                  {/* Link Secreto de Edição Permanente */}
+                  <div className="space-y-1.5 pt-2 border-t border-neutral-900">
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-amber-400">
+                      <Key className="w-3.5 h-3.5" />
+                      <span>Link Secreto de Edição Permanente</span>
+                    </div>
+                    <p className="text-[10px] text-neutral-400 leading-relaxed font-light">
+                      **GUARDE ESTE LINK SECRETO EM LOCAL SEGURO!** Você precisará dele para editar suas informações, biografia ou alterar sua foto no futuro sem ter que pagar novamente.
+                    </p>
+                    <div className="flex items-center gap-2 bg-neutral-905 border border-neutral-800 rounded-xl p-3 overflow-hidden justify-between">
+                      <span className="text-xs font-mono text-amber-300 truncate select-all pr-2 max-w-[240px]">
+                        {mensagemSucesso.editLink}
+                      </span>
+                      
+                      <div className="flex items-center gap-1 shrink-0">
+                        <button
+                          onClick={copiarEditLink}
+                          className="p-2 rounded-lg hover:bg-neutral-800 text-neutral-400 hover:text-white transition duration-200"
+                          title="Copiar Link de Edição"
+                        >
+                          {editLinkCopiado ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
                 </div>
 
                 <div className="pt-2">
                   <button
-                    onClick={() => {
-                      setMensagemSucesso(null);
-                      setPaymentPending(false);
-                      // Mantém as informações preenchidas para que ele possa criar outro ou alterar
-                    }}
-                    className="w-full flex items-center justify-center gap-2 py-3 px-6 rounded-xl font-bold text-xs bg-neutral-900 border border-neutral-800 hover:bg-neutral-800 transition duration-300 text-neutral-300 select-none cursor-pointer"
+                    onClick={handleCriarNovo}
+                    className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl font-bold text-xs bg-neutral-900 border border-neutral-800 hover:bg-neutral-800 transition duration-300 text-neutral-300 select-none cursor-pointer"
                   >
-                    Criar Novo Minisite
+                    Criar Novo Minisite do Zero
                   </button>
                 </div>
               </div>

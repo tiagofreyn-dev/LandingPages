@@ -11,8 +11,13 @@ CREATE TABLE IF NOT EXISTS public.landing_pages (
   bio TEXT NOT NULL,
   cor_tema TEXT NOT NULL,
   foto_url TEXT,
+  pago BOOLEAN DEFAULT false, -- Campo para controle de liberação após pagamento
   criado_em TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
+
+-- CASO VOCÊ JÁ TENHA A TABELA CRIADA NO SEU SUPABASE:
+-- Execute apenas o comando abaixo para adicionar a nova coluna de pagamento:
+-- ALTER TABLE public.landing_pages ADD COLUMN IF NOT EXISTS pago BOOLEAN DEFAULT false;
 
 -- Habilitar Row Level Security (RLS)
 ALTER TABLE public.landing_pages ENABLE ROW LEVEL SECURITY;

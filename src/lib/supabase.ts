@@ -39,6 +39,7 @@ export interface LandingPageData {
   bio: string;
   cor_tema: string;
   foto_url?: string;
+  pago?: boolean; // Controle de ativação pós-pagamento
   criado_em?: string;
 }
 
@@ -57,6 +58,7 @@ const defaultMockPages: LandingPageData[] = [
     bio: 'Especialista em Defesa dos Direitos Trabalhistas com mais de 15 anos de atuação. Dedicado a garantir justiça, transparência e agilidade na resolução de conflitos corporativos para trabalhadores e sindicatos.',
     cor_tema: 'azul',
     foto_url: '',
+    pago: true,
     criado_em: new Date().toISOString()
   },
   {
@@ -69,6 +71,7 @@ const defaultMockPages: LandingPageData[] = [
     bio: 'Ajudo pessoas a reconectarem-se com seu bem-estar mental e superarem ansiedade, estresse e depressão através da Terapia Cognitivo-Comportamental. Um espaço seguro e sem julgamentos para sua evolução pessoal.',
     cor_tema: 'verde',
     foto_url: '',
+    pago: true,
     criado_em: new Date().toISOString()
   },
   {
@@ -81,6 +84,7 @@ const defaultMockPages: LandingPageData[] = [
     bio: 'Consultoria tributária e contabilidade estratégica para startups, pequenas empresas e profissionais autônomos. Maximize seus lucros, reduza impostos legalmente e organize suas finanças com facilidade.',
     cor_tema: 'premium',
     foto_url: '',
+    pago: true,
     criado_em: new Date().toISOString()
   }
 ];

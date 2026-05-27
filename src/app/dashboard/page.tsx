@@ -850,63 +850,39 @@ export default function Dashboard() {
                     <span className="text-xs text-neutral-400 font-light">Assinatura:</span>
                     <span className="text-lg font-black text-cyan-400">R$ 8,99 / mês</span>
                   </div>
-
-                  {/* QR Code Simulação ou Instruções */}
-                  <div className="pt-2 flex flex-col items-center text-center space-y-3 bg-neutral-950/60 p-4 rounded-xl border border-neutral-850">
-                    <QrCode className="w-32 h-32 text-neutral-300" />
-                    <div>
-                      <p className="text-xs text-neutral-300 font-bold">Pague rápido via PIX</p>
-                      <p className="text-[10px] text-neutral-500">Escaneie o código acima ou copie a chave PIX abaixo</p>
-                    </div>
-
-                    <button
-                      onClick={copiarPix}
-                      className="w-full flex items-center justify-center gap-2 py-2 px-4 rounded-lg bg-neutral-800 hover:bg-neutral-750 text-neutral-200 text-xs font-bold transition duration-200 cursor-pointer border border-neutral-700 active:scale-95"
-                    >
-                      {pixCopiado ? (
-                        <>
-                          <Check className="w-3.5 h-3.5 text-emerald-400" />
-                          <span>Chave PIX Copiada!</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-3.5 h-3.5 text-neutral-400" />
-                          <span>Copiar Código PIX Copia e Cola</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
                 </div>
 
-                {/* Botões de Ação */}
+                {/* Botões de Ação Seguro */}
                 <div className="space-y-3 pt-2">
                   <a
-                    href={SEU_LINK_DE_PAGAMENTO}
+                    href={`${SEU_LINK_DE_PAGAMENTO}?custom_slug=${slug}&custom_key=${idPaginaEdicao}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl font-extrabold text-sm tracking-wide bg-gradient-to-r from-emerald-400 to-teal-500 hover:from-emerald-500 hover:to-teal-600 text-slate-950 hover:shadow-[0_0_20px_rgba(52,211,153,0.25)] active:scale-98 transition-all duration-300 cursor-pointer select-none text-center"
                   >
                     <CreditCard className="w-4 h-4 text-slate-950 font-bold" />
-                    <span>PAGAR VIA CARTÃO OU PIX</span>
+                    <span>PAGAR ASSINATURA NA CAKTO</span>
                   </a>
 
-                  <button
-                    onClick={handleConfirmarPagamento}
-                    disabled={confirmandoPagamento}
-                    className="w-full flex items-center justify-center gap-2 py-3 px-6 rounded-xl font-bold text-xs bg-cyan-950/30 text-cyan-400 hover:bg-cyan-950/60 border border-cyan-800/40 transition duration-300 active:scale-98 cursor-pointer disabled:opacity-50 select-none"
-                  >
-                    {confirmandoPagamento ? (
-                      <>
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        <span>Verificando Pagamento...</span>
-                      </>
-                    ) : (
-                      <>
-                        <ShieldCheck className="w-3.5 h-3.5" />
-                        <span>JÁ REALIZEI O PAGAMENTO (LIBERAR SITE)</span>
-                      </>
-                    )}
-                  </button>
+                  {/* Informativo de Liberação Automática */}
+                  <div className="p-4 bg-neutral-950/60 border border-neutral-850 rounded-xl text-center space-y-2">
+                    <p className="text-[11px] text-neutral-450 leading-relaxed font-light">
+                      Ao clicar no botão de pagamento, você iniciará sua assinatura no ambiente 100% seguro da <strong>Cakto</strong>. 
+                    </p>
+                    <p className="text-[11px] text-cyan-400 font-medium leading-relaxed">
+                      Assim que o pagamento for concluído, você será redirecionado de volta para este painel e seu site será ativado automaticamente!
+                    </p>
+                  </div>
+
+                  {/* Simulação restrita a localhost (evita fraudes em produção por pessoas reais) */}
+                  {typeof window !== 'undefined' && window.location.hostname === 'localhost' && (
+                    <button
+                      onClick={handleConfirmarPagamento}
+                      className="w-full py-2 px-4 bg-neutral-900 hover:bg-neutral-800 text-neutral-600 hover:text-neutral-300 rounded-xl text-[10px] font-bold border border-dashed border-neutral-850 transition duration-200 cursor-pointer mt-4"
+                    >
+                      🧪 [DESENVOLVEDOR] Simular Confirmação de Pagamento (Localhost)
+                    </button>
+                  )}
 
                   <button
                     type="button"

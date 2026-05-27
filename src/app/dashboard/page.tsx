@@ -34,7 +34,7 @@ import confetti from 'canvas-confetti';
 
 // CONFIGURAÇÃO DO PROPRIETÁRIO (VOCÊ)
 // Substitua o link abaixo pelo seu link de pagamento real (Mercado Pago, Stripe, etc.)
-const SEU_LINK_DE_PAGAMENTO = 'https://mpago.la/seu-link-de-pagamento';
+const SEU_LINK_DE_PAGAMENTO = 'https://pay.cakto.com.br/w78heoa_903142';
 
 export default function Dashboard() {
   // Estados do Formulário
@@ -833,10 +833,10 @@ export default function Dashboard() {
                 <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 space-y-2">
                   <div className="flex items-center gap-2">
                     <CreditCard className="w-5 h-5" />
-                    <h3 className="font-bold text-sm">Página Criada! Ative seu Minisite</h3>
+                    <h3 className="font-bold text-sm">Página Criada! Ative sua Assinatura</h3>
                   </div>
                   <p className="text-xs text-neutral-300 font-light leading-relaxed">
-                    Sua micro-landing page está salva com sucesso. Para ativá-la e liberar o link de acesso público aos seus clientes, realize o pagamento único de ativação.
+                    Sua micro-landing page está salva com sucesso. Para ativá-la e liberar o link de acesso público aos seus clientes, inicie sua assinatura mensal.
                   </p>
                 </div>
 
@@ -844,11 +844,11 @@ export default function Dashboard() {
                 <div className="p-5 rounded-2xl bg-neutral-900 border border-neutral-850 space-y-4">
                   <div className="flex justify-between items-center pb-3 border-b border-neutral-800">
                     <span className="text-xs text-neutral-400 font-light">Serviço:</span>
-                    <span className="text-xs text-neutral-200 font-bold">Ativação de Minisite Único</span>
+                    <span className="text-xs text-neutral-200 font-bold">Assinatura Mensal de Minisite</span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-xs text-neutral-400 font-light">Valor Único:</span>
-                    <span className="text-lg font-black text-cyan-400">R$ 19,90</span>
+                    <span className="text-xs text-neutral-400 font-light">Assinatura:</span>
+                    <span className="text-lg font-black text-cyan-400">R$ 8,99 / mês</span>
                   </div>
 
                   {/* QR Code Simulação ou Instruções */}
